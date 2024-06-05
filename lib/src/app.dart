@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/src/transcribe.dart';
+import 'package:sign_language_translater/src/transcribe.dart';
 
 import 'description.dart';
 import 'home.dart';
@@ -24,7 +24,10 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           restorationScopeId: 'app',
           debugShowCheckedModeBanner: false,
-          theme: ThemeData(),
+          theme: ThemeData(
+            primaryColor:  const Color(0xFF4053B5),
+            primaryColorLight: const Color(0xFF4053B5),
+          ),
           darkTheme: ThemeData.light(),
           themeMode: settingsController.themeMode,
           onGenerateRoute: (RouteSettings routeSettings) {
@@ -41,7 +44,7 @@ class MyApp extends StatelessWidget {
                   case TranscribeScreen.routeName:
                     return TranscribeScreen();
                   case Description.routeName:
-                    return Description();
+                    return const Description();
                   default:
                     return const HomeView();
                 }

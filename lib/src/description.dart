@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 
 class Description extends StatefulWidget {
-  static const String routeName = '/descrption';
+  static const String routeName = '/description';
 
   const Description({super.key});
 
@@ -39,7 +39,6 @@ class _DescriptionState extends State<Description> {
         autoInitialize: true,
         options: VlcPlayerOptions(),
       );
-
 
       _videoPlayerController.addListener(() {
         if (_videoPlayerController.value.position ==
@@ -81,6 +80,8 @@ class _DescriptionState extends State<Description> {
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)!.settings.arguments
+        as DescriptionScreenArguments;
     return Scaffold(
       appBar: AppBar(
         title: const Column(
@@ -95,6 +96,9 @@ class _DescriptionState extends State<Description> {
           fontWeight: FontWeight.bold,
         ),
         backgroundColor: Colors.blue[900],
+        leading: const BackButton(
+          color: Colors.white,
+        ),
       ),
       body: Stack(
         children: [
@@ -138,74 +142,143 @@ class _DescriptionState extends State<Description> {
                 // ),
                 child: Hero(
                   tag: 'hero_picture',
-                  child: _isLoading
-                      ? const CircularProgressIndicator()
-                      : SizedBox(
-                          width: 270,
-                          child: VlcPlayer(
+                  child: SizedBox(
+                    width: 270,
+                    child: _isLoading
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.black,
+                            ),
+                          )
+                        : VlcPlayer(
                             controller: _videoPlayerController,
                             aspectRatio: 16 / 9,
-                            placeholder: const CircularProgressIndicator(color: Colors.black,),
+                            placeholder: const CircularProgressIndicator(
+                              color: Colors.black,
+                            ),
                           ),
-                        ),
+                  ),
                 ),
               ),
               const SizedBox(
                 height: 20,
               ),
-              isVideoFinished ? Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  InkWell(
-                    onTap: () async {
-                      // if (!((await _videoPlayerController.isPlaying()) ?? false)){
-                      //   await _videoPlayerController.seekTo(Duration.zero);
-                      // }
+              const Row(
+                children: [],
+              ),
+              if (false)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    InkWell(
+                      onTap: () async {
+                        // if (!((await _videoPlayerController.isPlaying()) ?? false)){
+                        //   await _videoPlayerController.seekTo(Duration.zero);
+                        // }
 
-                      await _videoPlayerController.seekTo(Duration.zero);
-                      debugPrint('${await _videoPlayerController.getPosition()}');
-
-                    },
-                    child: const SizedBox(
-                      height: 50,
-                      width: 50,
-                      child: Icon(
-                        Icons.play_circle_outline,
-                        color: Colors.black,
+                        await _videoPlayerController.seekTo(Duration.zero);
+                        debugPrint(
+                            '${await _videoPlayerController.getPosition()}');
+                      },
+                      child: const SizedBox(
+                        height: 50,
+                        width: 50,
+                        child: Icon(
+                          Icons.play_circle_outline,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  const Text(
-                    'Play Video',
-                    style: TextStyle(
-                      fontSize: 18,
+                    const SizedBox(
+                      width: 10,
                     ),
-                  ),
-                ],
-              ) : const SizedBox(height: 0, width: 0,),
+                    const Text(
+                      'Play Video',
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
+                ),
+
               const SizedBox(height: 40),
-              const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text(
-                  "Description: The Sign means Thsi This This....",
-                  style: TextStyle(
-                    fontSize: 20,
+
+              if (args.type == Signs.letter)
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Letter: ${args.name}",
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 40),
-              const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text(
-                  "Example: I love you more than the stars and sky....",
-                  style: TextStyle(
-                    fontSize: 20,
+
+              if (args.type == Signs.word)
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Word: ${args.name}",
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                      const SizedBox(height: 20, ),
+                      Text(
+                        "Description: ${args.description ?? ''}",
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
+
+              if (args.type == Signs.number)
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Number: ${args.name}",
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              // const Padding(
+              //   padding: EdgeInsets.all(16),
+              //   child: Text(
+              //     "Description: The Sign means Thsi This This....",
+              //     style: TextStyle(
+              //       fontSize: 20,
+              //     ),
+              //   ),
+              // ),
+              // const SizedBox(height: 40),
+              // const Padding(
+              //   padding: EdgeInsets.all(16),
+              //   child: Text(
+              //     "Example: I love you more than the stars and sky....",
+              //     style: TextStyle(
+              //       fontSize: 20,
+              //     ),
+              //   ),
+              // ),
               const SizedBox(height: 30),
             ],
           ),
@@ -247,6 +320,15 @@ class ChoiceButton extends StatelessWidget {
 class DescriptionScreenArguments {
   final String name;
   final dynamic file;
+  final Signs type;
+  final String? description;
 
-  DescriptionScreenArguments({required this.file, required this.name});
+  DescriptionScreenArguments({
+    required this.file,
+    required this.name,
+    required this.type,
+    this.description,
+  });
 }
+
+enum Signs { number, letter, word }

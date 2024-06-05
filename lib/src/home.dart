@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sign_language_translater/src/list.dart';
 
 import 'widgets/common_button.dart';
 
@@ -105,7 +106,7 @@ class _HomeViewState extends State<HomeView> {
                         ),
                         color: const Color(0xFF4053B5),
                         onPressed: () {
-                          // Navigator.pushNamed(context, '/');
+                          Navigator.pushNamed(context, TabsView.routeName);
                         },
                       ),
                       CommonButton(

@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'firebase_options.dart';
 import 'src/app.dart';
 import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
-
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
 
 bool shouldUseFirestoreEmulator = false;
 
@@ -28,7 +28,9 @@ void main() async {
 
   await settingsController.loadSettings();
 
-
-
-  runApp(MyApp(settingsController: settingsController));
+  runApp(
+    ProviderScope(
+      child: MyApp(settingsController: settingsController),
+    ),
+  );
 }

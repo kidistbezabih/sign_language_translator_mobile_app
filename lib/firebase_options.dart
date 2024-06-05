@@ -17,7 +17,10 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -25,9 +28,15 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
-        return windows;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for windows - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -40,19 +49,9 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBPcr4P9LZZ9oJgT9P9tmDfKRJaHKbRSRI',
-    appId: '1:48373505577:web:0e407f86c8023886c24638',
-    messagingSenderId: '48373505577',
-    projectId: 'translation-app-de645',
-    authDomain: 'translation-app-de645.firebaseapp.com',
-    storageBucket: 'translation-app-de645.appspot.com',
-    measurementId: 'G-8CP0640WRV',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyChb5Vf_tOVyRpxLUcNinayegTdXOqZcvQ',
-    appId: '1:48373505577:android:f81f62b8eb6fc719c24638',
+    appId: '1:48373505577:android:67792d810699be5ec24638',
     messagingSenderId: '48373505577',
     projectId: 'translation-app-de645',
     storageBucket: 'translation-app-de645.appspot.com',
@@ -60,29 +59,10 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDG5k1IIzvuCnqkfpq1giQPyq-2QWfZrUM',
-    appId: '1:48373505577:ios:d98339f6f9be6e69c24638',
+    appId: '1:48373505577:ios:30a1852be3f5444cc24638',
     messagingSenderId: '48373505577',
     projectId: 'translation-app-de645',
     storageBucket: 'translation-app-de645.appspot.com',
-    iosBundleId: 'com.example.signLanguageTranslator',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDG5k1IIzvuCnqkfpq1giQPyq-2QWfZrUM',
-    appId: '1:48373505577:ios:d98339f6f9be6e69c24638',
-    messagingSenderId: '48373505577',
-    projectId: 'translation-app-de645',
-    storageBucket: 'translation-app-de645.appspot.com',
-    iosBundleId: 'com.example.signLanguageTranslator',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyBPcr4P9LZZ9oJgT9P9tmDfKRJaHKbRSRI',
-    appId: '1:48373505577:web:67f1b2240edf9e5fc24638',
-    messagingSenderId: '48373505577',
-    projectId: 'translation-app-de645',
-    authDomain: 'translation-app-de645.firebaseapp.com',
-    storageBucket: 'translation-app-de645.appspot.com',
-    measurementId: 'G-39KC398HVC',
+    iosBundleId: 'com.example.signLanguageTranslater',
   );
 }
