@@ -1,1 +1,1 @@
-# sign_language_translater
+# sign_language_translator_mobile_app
