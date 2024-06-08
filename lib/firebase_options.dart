@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -28,15 +25,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -48,6 +39,16 @@ class DefaultFirebaseOptions {
         );
     }
   }
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBPcr4P9LZZ9oJgT9P9tmDfKRJaHKbRSRI',
+    appId: '1:48373505577:web:0e407f86c8023886c24638',
+    messagingSenderId: '48373505577',
+    projectId: 'translation-app-de645',
+    authDomain: 'translation-app-de645.firebaseapp.com',
+    storageBucket: 'translation-app-de645.appspot.com',
+    measurementId: 'G-8CP0640WRV',
+  );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyChb5Vf_tOVyRpxLUcNinayegTdXOqZcvQ',
@@ -64,5 +65,24 @@ class DefaultFirebaseOptions {
     projectId: 'translation-app-de645',
     storageBucket: 'translation-app-de645.appspot.com',
     iosBundleId: 'com.example.signLanguageTranslater',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyDG5k1IIzvuCnqkfpq1giQPyq-2QWfZrUM',
+    appId: '1:48373505577:ios:c91e7c61a6f1f84bc24638',
+    messagingSenderId: '48373505577',
+    projectId: 'translation-app-de645',
+    storageBucket: 'translation-app-de645.appspot.com',
+    iosBundleId: 'com.example.signLanguageTranslatorMobileApp',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBPcr4P9LZZ9oJgT9P9tmDfKRJaHKbRSRI',
+    appId: '1:48373505577:web:ffb1b01f2bd7d12fc24638',
+    messagingSenderId: '48373505577',
+    projectId: 'translation-app-de645',
+    authDomain: 'translation-app-de645.firebaseapp.com',
+    storageBucket: 'translation-app-de645.appspot.com',
+    measurementId: 'G-D89P8ZEVTM',
   );
 }
