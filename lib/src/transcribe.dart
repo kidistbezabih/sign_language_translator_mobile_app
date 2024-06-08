@@ -120,3 +120,136 @@ class ChoiceButton extends StatelessWidget {
     );
   }
 }
+
+
+
+// import 'package:camera/camera.dart';
+// import 'package:flutter/material.dart';
+// import 'package:http/http.dart' as http;
+// import 'dart:convert';
+
+// import 'dart:typed_data';
+
+// import '../main.dart';
+
+
+// class TranscribeScreen extends StatefulWidget {
+//   static const String routeName = '/transcribe';
+
+//   @override
+//   _TranscribeScreenState createState() => _TranscribeScreenState();
+// }
+
+// class _TranscribeScreenState extends State<TranscribeScreen> {
+//   bool _isTranscribing = false;
+//   String _translation = '';
+//   late CameraController _controller;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _controller = CameraController(cameras[0], ResolutionPreset.max);
+//     _controller.initialize().then((_) {
+//       if (!mounted) {
+//         return;
+//       }
+//       setState(() {});
+//     }).catchError((Object e) {
+//       if (e is CameraException) {
+//         switch (e.code) {
+//           case 'CameraAccessDenied':
+//             // Handle access errors here.
+//             break;
+//           default:
+//             // Handle other errors here.
+//             break;
+//         }
+//       }
+//     });
+//   }
+//   @override
+//   void dispose() {
+//     _controller.dispose();
+//     super.dispose();
+//   }
+
+//   Future<void> _transcribe() async {
+//     setState(() {
+//       _isTranscribing = true;
+//       _translation = '';
+//     });
+
+//     try {
+//       // Capture a single frame
+//       XFile picture = await _controller.takePicture();
+//       Uint8List bytes = await picture.readAsBytes();
+//       String base64Image = base64Encode(bytes);
+
+//       // Log the request data
+//       print(
+//           'Request Data: ${base64Image.substring(0, 100)}...'); // Print first 100 characters for brevity
+
+//       // Send to the server for translation
+//       final response = await http.post(
+//         Uri.parse('http://10.240.71.63:5000/frame'),
+//         headers: {'Content-Type': 'application/json'},
+//         body: jsonEncode({'image': base64Image}),
+//       );
+
+//       // Log the response data
+//       print('Response Status Code: ${response.statusCode}');
+//       print('Response Body: ${response.body}');
+
+//       if (response.statusCode == 200) {
+//         final decoded = jsonDecode(response.body);
+//         setState(() {
+//           _translation = decoded['translation'] ?? 'No translation available';
+//         });
+//       } else {
+//         setState(() {
+//           _translation = 'Error: ${response.statusCode}';
+//         });
+//       }
+//     } catch (e) {
+//       setState(() {
+//         _translation = 'Error: ${e.toString()}';
+//       });
+//     }
+
+//     setState(() {
+//       _isTranscribing = false;
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     if (!_controller.value.isInitialized) {
+//       return Container();
+//     }
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Sign Language Translator'),
+//       ),
+//       body: Column(
+//         children: <Widget>[
+//           Expanded(
+//             child: CameraPreview(_controller),
+//           ),
+//           SizedBox(height: 16.0),
+//           _isTranscribing
+//               ? CircularProgressIndicator()
+//               : ElevatedButton(
+//                   onPressed: _transcribe,
+//                   child: Text('Transcribe'),
+//                 ),
+//           SizedBox(height: 16.0),
+//           Text(
+//             _translation,
+//             style: TextStyle(fontSize: 24.0),
+//           ),
+//           SizedBox(height: 16.0),
+//         ],
+//       ),
+//     );
+//   }
+// }

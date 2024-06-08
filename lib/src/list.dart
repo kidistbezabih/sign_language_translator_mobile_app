@@ -1,6 +1,8 @@
 import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import './searchController.dart' as sc;
 import 'description.dart';
@@ -435,6 +437,7 @@ class Alphabets extends StatefulWidget {
   });
 
   final sc.SearchController searchController;
+  
 
   @override
   State<Alphabets> createState() => _AlphabetsState();
@@ -442,12 +445,16 @@ class Alphabets extends StatefulWidget {
 
 class _AlphabetsState extends State<Alphabets> {
   List<QueryDocumentSnapshot<Map<String, dynamic>>> alphabets = [];
+  late List<String> favorites;
+  late SharedPreferences prefs;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       alphabets = await getCollectionData('letters');
+      prefs = await SharedPreferences.getInstance();
+      favorites =  prefs.getStringList("favorites_alphabets") ?? [];
       setState(() {});
     });
   }
@@ -678,13 +685,31 @@ class _AlphabetsState extends State<Alphabets> {
                                 ),
                         ),
                       ),
-                      const Positioned(
+                       Positioned(
                         top: 18,
                         right: 35,
-                        child: Icon(
-                          Icons.star_border,
-                          color: Color(0xFF4053B5),
-                          size: 32,
+                        child: GestureDetector(
+                          onTap: () async {
+                            final List<String> favs = [...favorites];
+                            var item = newAlphabets[index].reference.id;
+
+                            if (favorites.contains(item)) {
+                              favs.remove(item);
+                            }else {
+                              favs.add(item);
+                            }
+                            // debugPrint(item);
+                            // debugPrint(favs.toString());
+                            setState(() {
+                              favorites = favs;
+                            });
+                            await prefs.setStringList('favorites_alphabets', favs);
+                          },
+                          child: Icon( !favorites.contains(newAlphabets[index].reference.id) ? 
+                            Icons.star_border : Icons.star,
+                            color: Color(0xFF4053B5),
+                            size: 32,
+                          ),
                         ),
                       ),
                       // const Positioned(
