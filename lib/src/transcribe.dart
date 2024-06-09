@@ -1,97 +1,157 @@
 import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:typed_data';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  List<CameraDescription> cameras = await availableCameras();
+  runApp(TranscribeScreen(cameras: cameras));
+}
 
 class TranscribeScreen extends StatelessWidget {
+  final List<CameraDescription> cameras;
+
+  const TranscribeScreen({super.key, required this.cameras });
   static const String routeName = '/transcribe';
 
   @override
   Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Sign Language Translator',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: TranscribePage(cameras: cameras),
+    );
+  }
+}
+
+
+class TranscribePage extends StatefulWidget {
+  final List<CameraDescription> cameras;
+
+  const TranscribePage({super.key, required this.cameras});
+
+  @override
+  _TranscribePageState createState() => _TranscribePageState();
+}
+
+class _TranscribePageState extends State<TranscribePage> {
+  late CameraController _controller;
+  bool _isTranscribing = false;
+  String _translation = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = CameraController(
+      widget.cameras[0],
+      ResolutionPreset.medium,
+    );
+    _controller.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+  
+  Future<void> _transcribe() async {
+    setState(() {
+      _isTranscribing = true;
+      _translation = '';
+    });
+    
+    try {
+      XFile picture = await _controller.takePicture();
+      Uint8List bytes = await picture.readAsBytes();
+      String base64Image = base64Encode(bytes);
+
+      // Log the request data
+      print(
+            'Request Data: ${base64Image.substring(0, 100)}...'); // Print first 100 characters for brevity
+
+
+      final response = await http.post(
+        Uri.parse('http://10.240.71.63:5000/frame'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'image': base64Image}),
+        );
+      // Log the response data
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body);
+        setState(() {
+          _translation =
+              decoded['translation'] ?? ' የማይታወቅ ቃል!'; // Success message color
+        });
+      } else if (response.statusCode == 400) {
+        setState(() {
+          _translation = 'ምልክቱ እየታየ አይደለም፣ እንደገና ይሞከሩ!'; // Error message color
+        });
+      } else if (response.statusCode == 500) {
+        setState(() {
+          _translation = ' አገልግሎቱ ተቋርጧል!'; // Error message color
+        });
+      } else {
+        setState(() {
+          _translation = 'ያልተጠበቀ ችግር፣ እንደገና ይሞከሩ።';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _translation = 'ምሰል የመግራት ሂደት ችግር!'; // Error message color
+      });
+    }
+
+    setState(() {
+      _isTranscribing = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if(!_controller.value.isInitialized) {
+      return Container();
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Column(
-          children: [
-            Text('Quiz'),
-          ],
-        ),
-        centerTitle: true,
-        titleTextStyle: const TextStyle(
-          color: Colors.white,
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-        ),
-        backgroundColor: Colors.blue[900],
+        title: Text('Sign Language Translator'),
       ),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              Expanded(
-                flex: 1,
-                child: Container(
-                  color: Colors.blue[900],
-                ),
-              ),
-              Expanded(
-                  flex: 4,
-                  child: Container(
-                    color: Colors.white,
-                  )),
-            ],
+           body: Column(
+        children: <Widget>[
+          Expanded(
+            child: CameraPreview(_controller),
           ),
-          Column(
-            children: [
-              const SizedBox(height: 10),
-              const Text(
-                "What Does The Sign Mean ?",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+          SizedBox(height: 16.0),
+          _isTranscribing
+              ? CircularProgressIndicator()
+              : ElevatedButton(
+                  onPressed: _transcribe,
+                  child: Text('Transcribe'),
                 ),
-              ),
-              const SizedBox(height: 40),
-              Container(
-                alignment: Alignment.topCenter,
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                width: 300,
-                decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(30),
-                    )),
-                child: Hero(
-                  tag: 'hero_picture',
-                  child: Image.asset(
-                    'assets/images/sign.png',
-                    width: 270,
-                    height: 300,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ChoiceButton(text: '    LE    '),
-                  ChoiceButton(text: '    HA    '),
-                ],
-              ),
-              const SizedBox(height: 30),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ChoiceButton(text: '    RA    '),
-                  ChoiceButton(text: '    SE    '),
-                ],
-              ),
-              const SizedBox(height: 30),
-            ],
+          SizedBox(height: 16.0),
+          Text(
+            _translation,
+            style: TextStyle(fontSize: 24.0),
           ),
+          SizedBox(height: 16.0),
         ],
       ),
     );
   }
 }
-
 class ChoiceButton extends StatelessWidget {
   final String text;
 
@@ -120,136 +180,3 @@ class ChoiceButton extends StatelessWidget {
     );
   }
 }
-
-
-
-// import 'package:camera/camera.dart';
-// import 'package:flutter/material.dart';
-// import 'package:http/http.dart' as http;
-// import 'dart:convert';
-
-// import 'dart:typed_data';
-
-// import '../main.dart';
-
-
-// class TranscribeScreen extends StatefulWidget {
-//   static const String routeName = '/transcribe';
-
-//   @override
-//   _TranscribeScreenState createState() => _TranscribeScreenState();
-// }
-
-// class _TranscribeScreenState extends State<TranscribeScreen> {
-//   bool _isTranscribing = false;
-//   String _translation = '';
-//   late CameraController _controller;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _controller = CameraController(cameras[0], ResolutionPreset.max);
-//     _controller.initialize().then((_) {
-//       if (!mounted) {
-//         return;
-//       }
-//       setState(() {});
-//     }).catchError((Object e) {
-//       if (e is CameraException) {
-//         switch (e.code) {
-//           case 'CameraAccessDenied':
-//             // Handle access errors here.
-//             break;
-//           default:
-//             // Handle other errors here.
-//             break;
-//         }
-//       }
-//     });
-//   }
-//   @override
-//   void dispose() {
-//     _controller.dispose();
-//     super.dispose();
-//   }
-
-//   Future<void> _transcribe() async {
-//     setState(() {
-//       _isTranscribing = true;
-//       _translation = '';
-//     });
-
-//     try {
-//       // Capture a single frame
-//       XFile picture = await _controller.takePicture();
-//       Uint8List bytes = await picture.readAsBytes();
-//       String base64Image = base64Encode(bytes);
-
-//       // Log the request data
-//       print(
-//           'Request Data: ${base64Image.substring(0, 100)}...'); // Print first 100 characters for brevity
-
-//       // Send to the server for translation
-//       final response = await http.post(
-//         Uri.parse('http://10.240.71.63:5000/frame'),
-//         headers: {'Content-Type': 'application/json'},
-//         body: jsonEncode({'image': base64Image}),
-//       );
-
-//       // Log the response data
-//       print('Response Status Code: ${response.statusCode}');
-//       print('Response Body: ${response.body}');
-
-//       if (response.statusCode == 200) {
-//         final decoded = jsonDecode(response.body);
-//         setState(() {
-//           _translation = decoded['translation'] ?? 'No translation available';
-//         });
-//       } else {
-//         setState(() {
-//           _translation = 'Error: ${response.statusCode}';
-//         });
-//       }
-//     } catch (e) {
-//       setState(() {
-//         _translation = 'Error: ${e.toString()}';
-//       });
-//     }
-
-//     setState(() {
-//       _isTranscribing = false;
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     if (!_controller.value.isInitialized) {
-//       return Container();
-//     }
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('Sign Language Translator'),
-//       ),
-//       body: Column(
-//         children: <Widget>[
-//           Expanded(
-//             child: CameraPreview(_controller),
-//           ),
-//           SizedBox(height: 16.0),
-//           _isTranscribing
-//               ? CircularProgressIndicator()
-//               : ElevatedButton(
-//                   onPressed: _transcribe,
-//                   child: Text('Transcribe'),
-//                 ),
-//           SizedBox(height: 16.0),
-//           Text(
-//             _translation,
-//             style: TextStyle(fontSize: 24.0),
-//           ),
-//           SizedBox(height: 16.0),
-//         ],
-//       ),
-//     );
-//   }
-// }

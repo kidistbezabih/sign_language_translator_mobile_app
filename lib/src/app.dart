@@ -6,15 +6,30 @@ import 'home.dart';
 import 'list.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
+import 'settings/settings_service.dart';
+
+import 'package:camera/camera.dart';
+
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  List<CameraDescription> cameras = await availableCameras();
+  SettingsService _settingsService = SettingsService();
+  SettingsController settingsController = SettingsController(_settingsService);
+  runApp(MyApp(cameras: cameras, settingsController: settingsController));
+}
+
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
+  final List<CameraDescription> cameras;
+  final SettingsController settingsController;
+
   const MyApp({
     super.key,
     required this.settingsController,
+    required this.cameras,
   });
-
-  final SettingsController settingsController;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +57,7 @@ class MyApp extends StatelessWidget {
                   case TabsView.routeName:
                     return const TabsView();
                   case TranscribeScreen.routeName:
-                    return TranscribeScreen();
+                    return TranscribeScreen(cameras: cameras);
                   case Description.routeName:
                     return const Description();
                   default:
