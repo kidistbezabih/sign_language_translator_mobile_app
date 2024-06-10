@@ -127,7 +127,7 @@ class _TranscribePageState extends State<TranscribePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sign Language Translator'),
+        title: Text('የምልክት ቋንቋ ኣስተርጓሚ'),
       ),
            body: Column(
         children: <Widget>[
@@ -139,7 +139,7 @@ class _TranscribePageState extends State<TranscribePage> {
               ? CircularProgressIndicator()
               : ElevatedButton(
                   onPressed: _transcribe,
-                  child: Text('Transcribe'),
+                  child: Text('ተርጉም'),
                 ),
           SizedBox(height: 16.0),
           Text(

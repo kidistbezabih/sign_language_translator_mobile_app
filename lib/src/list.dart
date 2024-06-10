@@ -42,14 +42,15 @@ class _TabsViewState extends State<TabsView> {
               Icons.home,
               color: Color(0xFF4053B5),
             ),
-            label: 'Home',
+            label: '',//Home
+            
           ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.star_half,
               color: Color(0xFF4053B5),
             ),
-            label: 'Favorites',
+            label: '',//Favorites
           ),
         ],
       ),
@@ -83,7 +84,7 @@ class _TabsViewState extends State<TabsView> {
                             child: SizedBox(),
                           ),
                           const Text(
-                            'Alphabets',
+                            'የምልክት ቋንቋ ኣስተርጓሚ',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 22,
@@ -111,7 +112,7 @@ class _TabsViewState extends State<TabsView> {
                           style: const TextStyle(color: Colors.white),
                           cursorColor: Colors.white,
                           decoration: InputDecoration(
-                            hintText: 'Search',
+                            hintText: 'ፈልግ',
                             hintStyle: const TextStyle(
                               color: Colors.white,
                             ),
@@ -640,7 +641,7 @@ class _AlphabetsState extends State<Alphabets> {
                                                   ),
                                                   child: const Center(
                                                     child: Text(
-                                                      'Close',
+                                                      'ዝጋ',
                                                       style: TextStyle(
                                                         color: Colors.white,
                                                       ),
@@ -765,13 +766,13 @@ class Tabs extends StatelessWidget {
       ),
       tabs: const [
         Tab(
-          text: "Alphabets",
+          text: "ሆሄያት",
         ),
         Tab(
-          text: "Words",
+          text: "ቃላት",
         ),
         Tab(
-          text: "Numbers",
+          text: "ቁጥሮች",
         ),
       ],
     );

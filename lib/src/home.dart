@@ -65,7 +65,7 @@ class _HomeViewState extends State<HomeView> {
                     children: [
                       CommonButton(
                         titleWidget: const Text(
-                          "Transcribe",
+                          "ትርጉም",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
@@ -78,27 +78,7 @@ class _HomeViewState extends State<HomeView> {
                       ),
                       CommonButton(
                         titleWidget: const Text(
-                          "Others",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            showHome = false;
-                          });
-                          // Navigator.pushNamed(context, '/tabs');
-                        },
-                      ),
-                    ],
-                  )
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CommonButton(
-                        titleWidget: const Text(
-                          "Learning",
+                          "መማር",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
@@ -108,23 +88,56 @@ class _HomeViewState extends State<HomeView> {
                         onPressed: () {
                           Navigator.pushNamed(context, TabsView.routeName);
                         },
-                      ),
-                      CommonButton(
-                        titleWidget: const Text(
-                          "Quiz",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        onPressed: () {
-                          // Navigator.pushNamed(context, '/tabs');
-                        },
-                      ),
+                      )
+                      // CommonButton(
+                      //   titleWidget: const Text(
+                      //     "Others",
+                      //     style: TextStyle(
+                      //       fontSize: 20,
+                      //       fontWeight: FontWeight.bold,
+                      //     ),
+                      //   ),
+                      //   onPressed: () {
+                      //     setState(() {
+                      //       showHome = false;
+                      //     });
+                      //     // Navigator.pushNamed(context, '/tabs');
+                      //   },
+                      // ),
                     ],
-                  ),
+                  ):
+                // : Column(
+                //     mainAxisSize: MainAxisSize.min,
+                //     children: [
+                //       CommonButton(
+                //         titleWidget: const Text(
+                //           "Learning",
+                //           style: TextStyle(
+                //             fontSize: 20,
+                //             fontWeight: FontWeight.w700,
+                //           ),
+                //         ),
+                //         color: const Color(0xFF4053B5),
+                //         onPressed: () {
+                //           Navigator.pushNamed(context, TabsView.routeName);
+                //         },
+                //       ),
+                //       CommonButton(
+                //         titleWidget: const Text(
+                //           "Quiz",
+                //           style: TextStyle(
+                //             fontSize: 20,
+                //             fontWeight: FontWeight.bold,
+                //           ),
+                //         ),
+                //         onPressed: () {
+                //           // Navigator.pushNamed(context, '/tabs');
+                //         },
+                //       ),
+                //     ],
+                //   ),
             const Expanded(
-              flex: 3,
+              flex: 2,
               child: SizedBox(),
             ),
           ],
