@@ -40,7 +40,7 @@ class _CommonButtonState extends State<CommonButton> {
             borderRadius:
                 BorderRadius.circular(16), // Adjust the value as needed
           ),
-          backgroundColor: widget.color ??  Color(0xFF4053B5),
+          backgroundColor: widget.color ??  const Color(0xFF4053B5),
           foregroundColor: Colors.white,
         ),
         onPressed: widget.onPressed,

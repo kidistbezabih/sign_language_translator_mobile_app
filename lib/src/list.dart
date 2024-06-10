@@ -1,7 +1,6 @@
 import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import './searchController.dart' as sc;
@@ -20,39 +19,29 @@ class _TabsViewState extends State<TabsView> {
   TextEditingController searchKeyEditingController = TextEditingController();
 
   final searchController = sc.SearchController('');
+  final filteredWords = [];
+  bool fav = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text(
-      //     'Alphabets',
-      //     style: TextStyle(
-      //       fontWeight: FontWeight.bold,
-      //       fontSize: 22,
-      //     ),
-      //   ),
-      //   centerTitle: true,
-      // ),
-      bottomNavigationBar: BottomNavigationBar(
-        elevation: 6.0,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.home,
-              color: Color(0xFF4053B5),
-            ),
-            label: '',//Home
-            
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(100),
+          color: const Color(0xFF4053B5),
+        ),
+        padding: const EdgeInsets.all(5),
+        child: IconButton(
+          icon: const Icon(
+            Icons.star,
+            color: Colors.white,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.star_half,
-              color: Color(0xFF4053B5),
-            ),
-            label: '',//Favorites
-          ),
-        ],
+          onPressed: () {
+            setState(() {
+              fav = !fav;
+            });
+          },
+        ),
       ),
       body: ListenableBuilder(
         listenable: searchController,
@@ -145,20 +134,21 @@ class _TabsViewState extends State<TabsView> {
                         ),
                       ),
                       const Tabs(),
-                      const SizedBox(
-                        height: 0,
-                      ),
+                      const SizedBox(height: 15),
                       Expanded(
                         child: TabBarView(
                           children: [
                             Alphabets(
                               searchController: searchController,
+                              favoritesOnly: fav,
                             ),
                             Words(
                               searchController: searchController,
+                              favoritesOnly: fav,
                             ),
                             Numbers(
                               searchController: searchController,
+                              favoritesOnly: fav,
                             ),
                           ],
                         ),
@@ -179,9 +169,11 @@ class Numbers extends StatefulWidget {
   const Numbers({
     super.key,
     required this.searchController,
+    required this.favoritesOnly,
   });
 
   final sc.SearchController searchController;
+  final bool favoritesOnly;
 
   @override
   State<Numbers> createState() => _NumbersState();
@@ -189,19 +181,25 @@ class Numbers extends StatefulWidget {
 
 class _NumbersState extends State<Numbers> {
   List<QueryDocumentSnapshot<Map<String, dynamic>>> numbers = [];
+  List<String> favorites = [];
+
+  late SharedPreferences prefs;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       numbers = await getCollectionData('numbers');
+      prefs = await SharedPreferences.getInstance();
+      favorites = prefs.getStringList("favorites_numbers") ?? [];
       setState(() {});
-      // debugPrint('${numbers[0]}');
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    List newNumbers = [];
+
     debugPrint('Search Key: ${numbers.length}');
 
     return ListenableBuilder(
@@ -210,10 +208,11 @@ class _NumbersState extends State<Numbers> {
         debugPrint('Search Key: ${widget.searchController.searchKey}');
         List newNumbers = [];
         if (widget.searchController.searchKey.isNotEmpty) {
-          newNumbers = numbers
-              .where((element) =>
-                  element.get('name') == widget.searchController.searchKey)
-              .toList();
+          newNumbers = numbers.where((element) {
+            if (widget.favoritesOnly &&
+                !favorites.contains(element.reference.id)) return false;
+            return element.get('name') == widget.searchController.searchKey;
+          }).toList();
         } else {
           newNumbers = numbers;
         }
@@ -275,13 +274,32 @@ class _NumbersState extends State<Numbers> {
                           ),
                         ),
                       ),
-                      const Positioned(
-                        top: 2,
+                      Positioned(
+                        top: 18,
                         right: 35,
-                        child: Icon(
-                          Icons.bookmark_sharp,
-                          color: Color(0xFF4053B5),
-                          size: 32,
+                        child: GestureDetector(
+                          onTap: () async {
+                            final List<String> favs = [...favorites];
+                            var item = newNumbers[index].reference.id;
+
+                            if (favorites.contains(item)) {
+                              favs.remove(item);
+                            } else {
+                              favs.add(item);
+                            }
+                            setState(() {
+                              favorites = favs;
+                            });
+                            await prefs.setStringList(
+                                'favorites_numbers', favs);
+                          },
+                          child: Icon(
+                            !favorites.contains(newNumbers[index].reference.id)
+                                ? Icons.star_border
+                                : Icons.star,
+                            color: Color(0xFF4053B5),
+                            size: 32,
+                          ),
                         ),
                       ),
                     ],
@@ -297,9 +315,11 @@ class Words extends StatefulWidget {
   const Words({
     super.key,
     required this.searchController,
+    required this.favoritesOnly,
   });
 
   final sc.SearchController searchController;
+  final bool favoritesOnly;
 
   @override
   State<Words> createState() => _WordsState();
@@ -307,19 +327,25 @@ class Words extends StatefulWidget {
 
 class _WordsState extends State<Words> {
   List<QueryDocumentSnapshot<Map<String, dynamic>>> words = [];
+  List<String> favorites = [];
+
+  late SharedPreferences prefs;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       words = await getCollectionData('words');
+      prefs = await SharedPreferences.getInstance();
+      favorites = prefs.getStringList("favorites_words") ?? [];
       setState(() {});
-      // debugPrint('${words[0].get('word')}');
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    List newWords = [];
+
     return ListenableBuilder(
       listenable: widget.searchController,
       builder: (BuildContext context, Widget? child) {
@@ -329,6 +355,9 @@ class _WordsState extends State<Words> {
 
         if (widget.searchController.searchKey.isNotEmpty) {
           newWords = words.where((element) {
+            if (widget.favoritesOnly &&
+                !favorites.contains(element.reference.id)) return false;
+
             if (element
                     .get('word')
                     .toString()
@@ -405,13 +434,34 @@ class _WordsState extends State<Words> {
                           ),
                         ),
                       ),
-                      const Positioned(
-                        top: 2,
+                      Positioned(
+                        top: 18,
                         right: 35,
-                        child: Icon(
-                          Icons.bookmark_sharp,
-                          color: Color(0xFF4053B5),
-                          size: 32,
+                        child: GestureDetector(
+                          onTap: () async {
+                            final List<String> favs = [...favorites];
+                            var item = newWords[index].reference.id;
+
+                            if (favorites.contains(item)) {
+                              favs.remove(item);
+                            } else {
+                              favs.add(item);
+                            }
+                            // debugPrint(item);
+                            // debugPrint(favs.toString());
+                            setState(() {
+                              favorites = favs;
+                            });
+                            await prefs.setStringList(
+                                'favorites_alphabets', favs);
+                          },
+                          child: Icon(
+                            !favorites.contains(newWords[index].reference.id)
+                                ? Icons.star_border
+                                : Icons.star,
+                            color: Color(0xFF4053B5),
+                            size: 32,
+                          ),
                         ),
                       ),
                     ],
@@ -435,10 +485,11 @@ class Alphabets extends StatefulWidget {
   const Alphabets({
     super.key,
     required this.searchController,
+    required this.favoritesOnly,
   });
 
   final sc.SearchController searchController;
-  
+  final bool favoritesOnly;
 
   @override
   State<Alphabets> createState() => _AlphabetsState();
@@ -446,7 +497,7 @@ class Alphabets extends StatefulWidget {
 
 class _AlphabetsState extends State<Alphabets> {
   List<QueryDocumentSnapshot<Map<String, dynamic>>> alphabets = [];
-  late List<String> favorites;
+  List<String> favorites = [];
   late SharedPreferences prefs;
 
   @override
@@ -455,13 +506,14 @@ class _AlphabetsState extends State<Alphabets> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       alphabets = await getCollectionData('letters');
       prefs = await SharedPreferences.getInstance();
-      favorites =  prefs.getStringList("favorites_alphabets") ?? [];
+      favorites = prefs.getStringList("favorites_alphabets") ?? [];
       setState(() {});
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    print(favorites);
     return ListenableBuilder(
       listenable: widget.searchController,
       builder: (BuildContext context, Widget? child) {
@@ -470,9 +522,10 @@ class _AlphabetsState extends State<Alphabets> {
         if (widget.searchController.searchKey.isNotEmpty) {
           newAlphabets = alphabets.where((element) {
             for (var alphabet in alphabets) {
-              debugPrint('${alphabet.get('label') ?? ''}');
-
               var letters = alphabet.get('label');
+
+              if (widget.favoritesOnly &&
+                  !favorites.contains(element.reference.id)) return false;
 
               if (letters[0].contains(widget.searchController.searchKey) ||
                   letters[1].contains(widget.searchController.searchKey) ||
@@ -481,8 +534,6 @@ class _AlphabetsState extends State<Alphabets> {
                   letters[4].contains(widget.searchController.searchKey) ||
                   letters[5].contains(widget.searchController.searchKey) ||
                   letters[6].contains(widget.searchController.searchKey)) {
-                debugPrint(
-                    '${letters} vs ${widget.searchController.searchKey}');
                 return true;
               }
             }
@@ -686,7 +737,7 @@ class _AlphabetsState extends State<Alphabets> {
                                 ),
                         ),
                       ),
-                       Positioned(
+                      Positioned(
                         top: 18,
                         right: 35,
                         child: GestureDetector(
@@ -696,7 +747,7 @@ class _AlphabetsState extends State<Alphabets> {
 
                             if (favorites.contains(item)) {
                               favs.remove(item);
-                            }else {
+                            } else {
                               favs.add(item);
                             }
                             // debugPrint(item);
@@ -704,10 +755,14 @@ class _AlphabetsState extends State<Alphabets> {
                             setState(() {
                               favorites = favs;
                             });
-                            await prefs.setStringList('favorites_alphabets', favs);
+                            await prefs.setStringList(
+                                'favorites_alphabets', favs);
                           },
-                          child: Icon( !favorites.contains(newAlphabets[index].reference.id) ? 
-                            Icons.star_border : Icons.star,
+                          child: Icon(
+                            !favorites
+                                    .contains(newAlphabets[index].reference.id)
+                                ? Icons.star_border
+                                : Icons.star,
                             color: Color(0xFF4053B5),
                             size: 32,
                           ),

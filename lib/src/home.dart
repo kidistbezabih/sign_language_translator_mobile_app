@@ -55,10 +55,6 @@ class _HomeViewState extends State<HomeView> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Expanded(
-              flex: 2,
-              child: SizedBox(),
-            ),
             showHome
                 ? Column(
                     mainAxisSize: MainAxisSize.min,
@@ -78,7 +74,7 @@ class _HomeViewState extends State<HomeView> {
                       ),
                       CommonButton(
                         titleWidget: const Text(
-                          "መማር",
+                          "ለመማር",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
